@@ -1,0 +1,16 @@
+server:
+  servlet:
+    context-path: /api/v1
+  port: 8080
+spring:
+  application:
+    name: product-cloud-service
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
