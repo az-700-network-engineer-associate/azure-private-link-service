@@ -1,49 +1,47 @@
 name: Terraform AZ-700-azure-private-link-service Deployment
-
 on:
   push:
     branches: [ main ]
-
 env:
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
   ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
   ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-
-
 jobs:
   terraform-dev:
   runs-on: ubuntu-latest
-steps:
-  # 5️⃣ Checkout Terraform repo (Repo terraform-az700-networking contains all Terraform code for AZ-700 labs
-  - name: Checkout
-    uses: actions/checkout@v4
-    with:
-      fetch-depth: 0
-      repository: az-700-network-engineer-associate/terraform-az700-networking
-      token: ${{ secrets.TF_REPO_TOKEN }}
-      path: envs/dev/private-link-service
-   #  Setup Terraform
-  - name: Setup Terraform
-    uses: hashicorp/setup-terraform@v3
-  # Azure Login using OIDC (no secrets needed, more secure)
-  - name: Azure Login (OIDC)
-    uses: azure/login@v2
-    with:
-      client-id: ${{ secrets.AZURE_CLIENT_ID }}
-      tenant-id: ${{ secrets.ARM_TENANT_ID }}
-      subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
- # Terraform Init, Validate, Plan, Apply
-  - name: Terraform Init
-    run: terraform init
- # Terraform Validate
-  - name: Terraform Validate
-    run: terraform validate
+  steps:
+    # 5️⃣ Checkout Terraform repo (Repo terraform-az700-networking contains all Terraform code for AZ-700 labs
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        repository: az-700-network-engineer-associate/terraform-az700-networking
+        token: ${{ secrets.TF_REPO_TOKEN }}
+        path: envs/dev/private-link-service
 
-# Terraform Plan
-  - name: Terraform Plan
-    run: terraform plan -out=tfplan
-# Terraform Apply (only on main branch to prevent accidental deployments from feature branches)
-  - name: Terraform Apply (Main only)
-    if: github.ref == 'refs/heads/main'
-    run: terraform apply -auto-approve tfplan
+    #  Setup Terraform
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    # Azure Login using OIDC (no secrets needed, more secure)
+    - name: Azure Login (OIDC)
+      uses: azure/login@v2
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.ARM_TENANT_ID }}
+        subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+    # Terraform Init, Validate, Plan, Apply
+    - name: Terraform Init
+      run: terraform init
+    # Terraform Validate
+    - name: Terraform Validate
+      run: terraform validate
+
+    # Terraform Plan
+    - name: Terraform Plan
+      run: terraform plan -out=tfplan
+    # Terraform Apply (only on main branch to prevent accidental deployments from feature branches)
+    - name: Terraform Apply (Main only)
+      if: github.ref == 'refs/heads/main'
+      run: terraform apply -auto-approve tfplan
