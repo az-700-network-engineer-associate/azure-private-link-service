@@ -9,6 +9,10 @@ on:
       - 'terraform/**'
       - '.github/workflows/terrafrom-deploy.yml'
 
+permissions:
+  id-token: write   # ✅ REQUIRED for Azure OIDC
+  contents: read
+
 env:
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
