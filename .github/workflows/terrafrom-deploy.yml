@@ -1,47 +1,60 @@
-name: Terraform AZ-700-azure-private-link-service Deployment
+
+name: Terraform AZ-700 Private Link Service Deployment
+
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+
 env:
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
   ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
   ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+
 jobs:
   terraform-dev:
-  runs-on: ubuntu-latest
-  steps:
-    # 5️⃣ Checkout Terraform repo (Repo terraform-az700-networking contains all Terraform code for AZ-700 labs
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        repository: az-700-network-engineer-associate/terraform-az700-networking
-        token: ${{ secrets.TF_REPO_TOKEN }}
-        path: envs/dev/private-link-service
+    runs-on: ubuntu-latest
 
-    #  Setup Terraform
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
+    steps:
+      # 1️⃣ Checkout Terraform Repo
+      - name: Checkout Terraform Repo
+        uses: actions/checkout@v4
+        with:
+          repository: az-700-network-engineer-associate/terraform-az700-networking
+          token: ${{ secrets.TF_REPO_TOKEN }}
+          path: env/dev/private-link-service
 
-    # Azure Login using OIDC (no secrets needed, more secure)
-    - name: Azure Login (OIDC)
-      uses: azure/login@v2
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.ARM_TENANT_ID }}
-        subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-    # Terraform Init, Validate, Plan, Apply
-    - name: Terraform Init
-      run: terraform init
-    # Terraform Validate
-    - name: Terraform Validate
-      run: terraform validate
+      # 2️⃣ Setup Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
 
-    # Terraform Plan
-    - name: Terraform Plan
-      run: terraform plan -out=tfplan
-    # Terraform Apply (only on main branch to prevent accidental deployments from feature branches)
-    - name: Terraform Apply (Main only)
-      if: github.ref == 'refs/heads/main'
-      run: terraform apply -auto-approve tfplan
+      # 3️⃣ Azure Login
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.ARM_TENANT_ID }}
+          subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+
+      # 4️⃣ Terraform Init
+      - name: Terraform Init
+        working-directory: terraform/envs/dev/private-link-service
+        run: terraform init
+
+      # 5️⃣ Terraform Validate
+      - name: Terraform Validate
+        working-directory: terraform/envs/dev/private-link-service
+        run: terraform validate
+
+      # 6️⃣ Terraform Plan
+      - name: Terraform Plan
+        working-directory: terraform/envs/dev/private-link-service
+        run: terraform plan -out=tfplan
+
+      # 7️⃣ Terraform Apply
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        working-directory: terraform/envs/dev/private-link-service
+        run: terraform apply -auto-approve tfplan
+
