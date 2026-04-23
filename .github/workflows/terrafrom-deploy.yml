@@ -5,6 +5,9 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'terraform/**'
+      - '.github/workflows/terrafrom-deploy.yml'
 
 env:
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
