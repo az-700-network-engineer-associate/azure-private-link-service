@@ -30,6 +30,10 @@ jobs:
           repository: az-700-network-engineer-associate/terraform-az700-networking
           token: ${{ secrets.TF_REPO_TOKEN }}
           path: env/dev/private-link-service
+      - name: List terraform repo Files
+        run: ls -ltr
+      - name: List Terraform Files
+        run: ls -R envs/dev/private-link-service
 
       # 2️⃣ Setup Terraform
       - name: Setup Terraform
@@ -45,22 +49,22 @@ jobs:
 
       # 4️⃣ Terraform Init
       - name: Terraform Init
-        working-directory: terraform/envs/dev/private-link-service
+        working-directory: envs/dev/private-link-service
         run: terraform init
 
       # 5️⃣ Terraform Validate
       - name: Terraform Validate
-        working-directory: terraform/envs/dev/private-link-service
+        working-directory: envs/dev/private-link-service
         run: terraform validate
 
       # 6️⃣ Terraform Plan
       - name: Terraform Plan
-        working-directory: terraform/envs/dev/private-link-service
+        working-directory: envs/dev/private-link-service
         run: terraform plan -out=tfplan
 
       # 7️⃣ Terraform Apply
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
-        working-directory: terraform/envs/dev/private-link-service
+        working-directory: envs/dev/private-link-service
         run: terraform apply -auto-approve tfplan
 
