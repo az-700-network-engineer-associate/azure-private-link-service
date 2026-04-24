@@ -29,11 +29,9 @@ jobs:
         with:
           repository: az-700-network-engineer-associate/terraform-az700-networking
           token: ${{ secrets.TF_REPO_TOKEN }}
-          path: envs/dev/private-link-service
+
       - name: List terraform repo Files
-        run: ls -ltr envs
-      - name: List Terraform Files
-        run: ls -R envs/dev/private-link-service
+        run: ls -ltr
 
       # 2️⃣ Setup Terraform
       - name: Setup Terraform
@@ -56,6 +54,9 @@ jobs:
       - name: Terraform Validate
         working-directory: envs/dev/private-link-service
         run: terraform validate
+
+      - name: List Terraform Files
+        run: ls -R envs/dev/private-link-service
 
       # 6️⃣ Terraform Plan
       - name: Terraform Plan
