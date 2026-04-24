@@ -29,9 +29,9 @@ jobs:
         with:
           repository: az-700-network-engineer-associate/terraform-az700-networking
           token: ${{ secrets.TF_REPO_TOKEN }}
-          path: env/dev/private-link-service
+          path: envs/dev/private-link-service
       - name: List terraform repo Files
-        run: ls -ltr
+        run: ls -ltr envs
       - name: List Terraform Files
         run: ls -R envs/dev/private-link-service
 
