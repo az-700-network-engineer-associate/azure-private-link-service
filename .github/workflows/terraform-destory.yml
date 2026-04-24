@@ -1,0 +1,69 @@
+name: Terraform Destroy (Dev - Private Link Service)
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_destroy:
+        description: "Type YES to confirm destruction"
+        required: true
+      environment:
+        description: "Environment to destroy"
+        required: true
+        default: "dev"
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+
+jobs:
+  destroy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Safety Check
+      - name: Validate Confirmation
+        run: |
+          if [ "${{ github.event.inputs.confirm_destroy }}" != "YES" ]; then
+            echo "❌ Destroy not confirmed. Exiting."
+            exit 1
+          fi
+
+      # 2️⃣ Checkout Terraform Repo
+      - name: Checkout Terraform Repo
+        uses: actions/checkout@v4
+        with:
+          repository: az-700-network-engineer-associate/terraform-az700-networking
+          token: ${{ secrets.TF_REPO_TOKEN }}
+
+
+      # 3️⃣ Setup Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      # 4️⃣ Azure Login (OIDC)
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.ARM_CLIENT_ID }}
+          tenant-id: ${{ secrets.ARM_TENANT_ID }}
+          subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+
+      # 5️⃣ Terraform Init
+      - name: Terraform Init
+        working-directory: envs/dev/private-link-service
+        run: terraform init
+
+      # 6️⃣ Terraform Destroy Plan
+      - name: Terraform Destroy Plan
+        working-directory: envs/dev/private-link-service
+        run: terraform plan -destroy -out=destroy.tfplan
+
+      # 7️⃣ Terraform Destroy Apply
+      - name: Terraform Destroy Apply
+        working-directory: envs/dev/private-link-service
+        run: terraform apply -auto-approve destroy.tfplan
