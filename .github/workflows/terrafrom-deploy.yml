@@ -104,8 +104,12 @@ jobs:
       - name: Download state
         uses: actions/download-artifact@v4
         with:
-          name: tfstate
+          name: terraform-state
           path: envs/dev/private-link-service/terraform.tfstate
+      - name: List Terraform Files
+        run: ls -la
+      - name: unzip state
+        run: unzip terraform-state.zip -d envs/dev/private-link-service
 
       - name: Terraform Destroy
         run: terraform destroy -auto-approve
