@@ -48,5 +48,5 @@ jobs:
           terraform init -migrate-state \
             -backend-config="resource_group_name=rg-pls-bootstrap-dev" \
             -backend-config="storage_account_name=storageacttfstatedev" \
-            -backend-config="container_name=tf-bootstap-state-container" \
+            -backend-config="container_name=tf-state-pls-dev" \
             -backend-config="key=bootstrap.tfstate"
