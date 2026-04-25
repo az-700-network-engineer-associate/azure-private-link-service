@@ -41,3 +41,12 @@ jobs:
       - name: Terraform Apply (bootstrap)
         working-directory: bootstrap
         run: terraform apply -auto-approve
+
+      - name: Migrate state to backend
+        working-directory: bootstrap
+        run: |
+          terraform init -migrate-state \
+            -backend-config="resource_group_name=rg-pls-bootstrap-dev" \
+            -backend-config="storage_account_name=storageacttfstatedev" \
+            -backend-config="container_name=tf-bootstap-state-container" \
+            -backend-config="key=bootstrap.tfstate"
