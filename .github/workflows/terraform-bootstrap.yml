@@ -1,0 +1,45 @@
+name: Terraform Bootstrap + Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+
+jobs:
+  # 🧱 1) BOOTSTRAP (runs once or idempotent)
+  bootstrap:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          repository: az-700-network-engineer-associate/terraform-az700-networking
+          token: ${{ secrets.TF_REPO_TOKEN }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.ARM_CLIENT_ID }}
+          tenant-id: ${{ secrets.ARM_TENANT_ID }}
+          subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+
+      - name: Terraform Init (bootstrap)
+        working-directory: bootstrap
+        run: terraform init
+
+      - name: Terraform Apply (bootstrap)
+        working-directory: bootstrap
+        run: terraform apply -auto-approve

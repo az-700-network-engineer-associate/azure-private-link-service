@@ -1,125 +1,129 @@
 
-name: Terraform AZ-700 Private Link Service Deployment
+  name: Terraform AZ-700 Private Link Service Deployment
 
-on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'terraform/**'
-      - '.github/workflows/terrafrom-deploy.yml'
+  on:
+    push:
+      branches:
+        - main
+      paths:
+        - 'terraform/**'
+        - '.github/workflows/terrafrom-deploy.yml'
 
-permissions:
-  id-token: write   # ✅ REQUIRED for Azure OIDC
-  contents: read
+  permissions:
+    id-token: write   # ✅ REQUIRED for Azure OIDC
+    contents: read
 
-env:
-  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  env:
+    ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+    ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+    ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
 
-jobs:
-  terraform-dev:
-    runs-on: ubuntu-latest
+  jobs:
+    terraform-dev:
+      runs-on: ubuntu-latest
 
-    steps:
-      # Checkout Terraform Repo
-      - name: Checkout Terraform Repo
-        uses: actions/checkout@v4
-        with:
-          repository: az-700-network-engineer-associate/terraform-az700-networking
-          token: ${{ secrets.TF_REPO_TOKEN }}
+      steps:
+        # Checkout Terraform Repo
+        - name: Checkout Terraform Repo
+          uses: actions/checkout@v4
+          with:
+            repository: az-700-network-engineer-associate/terraform-az700-networking
+            token: ${{ secrets.TF_REPO_TOKEN }}
 
-      - name: List terraform repo Files
-        run: ls -ltr
+        - name: List terraform repo Files
+          run: ls -ltr
 
-      # Setup Terraform
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+        # Setup Terraform
+        - name: Setup Terraform
+          uses: hashicorp/setup-terraform@v3
 
-      # Azure Login
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.ARM_CLIENT_ID }}
-          tenant-id: ${{ secrets.ARM_TENANT_ID }}
-          subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        # Azure Login
+        - name: Azure Login
+          uses: azure/login@v2
+          with:
+            client-id: ${{ secrets.ARM_CLIENT_ID }}
+            tenant-id: ${{ secrets.ARM_TENANT_ID }}
+            subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        # Terraform in
+        # Terraform Init
+        - name: Terraform Init
+          working-directory: envs/dev/private-link-service
+          run: terraform init \
+            -backend-config="storage_account_name="storageacttfstatedev" \
+            -backend-config="container_name="tf-state-pls-dev" \
+            -backend-config="key=dev/private-link-service/terraform.tfstate" \
+            -backend-config="access_key=${{ secrets.TF_BACKEND_ACCESS_KEY }}"
 
-      # Terraform Init
-      - name: Terraform Init
-        working-directory: envs/dev/private-link-service
-        run: terraform init
+        # Terraform Validate
+        - name: Terraform Validate
+          working-directory: envs/dev/private-link-service
+          run: terraform validate
 
-      # Terraform Validate
-      - name: Terraform Validate
-        working-directory: envs/dev/private-link-service
-        run: terraform validate
+        - name: List Terraform Files
+          run: ls -R envs/dev/private-link-service
 
-      - name: List Terraform Files
-        run: ls -R envs/dev/private-link-service
+        # Terraform Plan
+        - name: Terraform Plan
+          working-directory: envs/dev/private-link-service
+          run: terraform plan -out=tfplan
 
-      # Terraform Plan
-      - name: Terraform Plan
-        working-directory: envs/dev/private-link-service
-        run: terraform plan -out=tfplan
+        - name: Download state
+          uses: actions/download-artifact@v4
+          with:
+            name: terraform-state
+            path: envs/dev/private-link-service/terraform.tfstate
+        # Terraform Apply
+        - name: Terraform Apply
+          if: github.ref == 'refs/heads/main'
+          working-directory: envs/dev/private-link-service
+          run: terraform apply -auto-approve tfplan
 
-      - name: Download state
-        uses: actions/download-artifact@v4
-        with:
-          name: terraform-state
-          path: envs/dev/private-link-service/terraform.tfstate
-      # Terraform Apply
-      - name: Terraform Apply
-        if: github.ref == 'refs/heads/main'
-        working-directory: envs/dev/private-link-service
-        run: terraform apply -auto-approve tfplan
+        # Upload state file as an artifact (optional, for debugging)
+        - name : Upload state
+          uses: actions/upload-artifact@v4
+          with:
+            name: terraform-state
+            path: envs/dev/private-link-service/terraform.tfstate
 
-      # Upload state file as an artifact (optional, for debugging)
-      - name : Upload state
-        uses: actions/upload-artifact@v4
-        with:
-          name: terraform-state
-          path: envs/dev/private-link-service/terraform.tfstate
+    # 🔐 DESTROY (with approval)
+    destroy:
+      needs: terraform-dev
+      runs-on: ubuntu-latest
 
-  # 🔐 DESTROY (with approval)
-  destroy:
-    needs: terraform-dev
-    runs-on: ubuntu-latest
+      # 👇 THIS IS THE MAGIC
+      environment: dev
 
-    # 👇 THIS IS THE MAGIC
-    environment: dev
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+          with:
+            repository: az-700-network-engineer-associate/terraform-az700-networking
+            token: ${{ secrets.TF_REPO_TOKEN }}
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          repository: az-700-network-engineer-associate/terraform-az700-networking
-          token: ${{ secrets.TF_REPO_TOKEN }}
+        - name: Setup Terraform
+          uses: hashicorp/setup-terraform@v3
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+        - name: Azure Login
+          uses: azure/login@v2
+          with:
+            client-id: ${{ secrets.ARM_CLIENT_ID }}
+            tenant-id: ${{ secrets.ARM_TENANT_ID }}
+            subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
 
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.ARM_CLIENT_ID }}
-          tenant-id: ${{ secrets.ARM_TENANT_ID }}
-          subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        - name: Download state
+          uses: actions/download-artifact@v4
+          with:
+            name: terraform-state
+            path: envs/dev/private-link-service/terraform.tfstate
+        - name: List Terraform Files
+          run: ls -la
+        - name: unzip state
+          run: unzip terraform-state.zip -d envs/dev/private-link-service
 
-      - name: Download state
-        uses: actions/download-artifact@v4
-        with:
-          name: terraform-state
-          path: envs/dev/private-link-service/terraform.tfstate
-      - name: List Terraform Files
-        run: ls -la
-      - name: unzip state
-        run: unzip terraform-state.zip -d envs/dev/private-link-service
-
-      - name: Terraform Destroy
-        run: terraform destroy -auto-approve
-      - name: Terraform Destroy
-        working-directory: envs/dev/private-link-service
-        run: |
-          terraform init
-          terraform destroy -auto-approve
+        - name: Terraform Destroy
+          run: terraform destroy -auto-approve
+        - name: Terraform Destroy
+          working-directory: envs/dev/private-link-service
+          run: |
+            terraform init
+            terraform destroy -auto-approve
