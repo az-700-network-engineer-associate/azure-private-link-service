@@ -63,6 +63,11 @@ jobs:
         working-directory: envs/dev/private-link-service
         run: terraform plan -out=tfplan
 
+      - name: Download state
+        uses: actions/download-artifact@v4
+        with:
+          name: terraform-state
+          path: envs/dev/private-link-service/terraform.tfstate
       # Terraform Apply
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
