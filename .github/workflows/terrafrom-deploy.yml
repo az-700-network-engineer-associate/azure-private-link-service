@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout Terraform Repo
+      # Checkout Terraform Repo
       - name: Checkout Terraform Repo
         uses: actions/checkout@v4
         with:
@@ -33,11 +33,11 @@ jobs:
       - name: List terraform repo Files
         run: ls -ltr
 
-      # 2️⃣ Setup Terraform
+      # Setup Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      # 3️⃣ Azure Login
+      # Azure Login
       - name: Azure Login
         uses: azure/login@v2
         with:
@@ -45,12 +45,12 @@ jobs:
           tenant-id: ${{ secrets.ARM_TENANT_ID }}
           subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
 
-      # 4️⃣ Terraform Init
+      # Terraform Init
       - name: Terraform Init
         working-directory: envs/dev/private-link-service
         run: terraform init
 
-      # 5️⃣ Terraform Validate
+      # Terraform Validate
       - name: Terraform Validate
         working-directory: envs/dev/private-link-service
         run: terraform validate
@@ -58,17 +58,23 @@ jobs:
       - name: List Terraform Files
         run: ls -R envs/dev/private-link-service
 
-      # 6️⃣ Terraform Plan
+      # Terraform Plan
       - name: Terraform Plan
         working-directory: envs/dev/private-link-service
         run: terraform plan -out=tfplan
 
-      # 7️⃣ Terraform Apply
+      # Terraform Apply
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
         working-directory: envs/dev/private-link-service
         run: terraform apply -auto-approve tfplan
 
+      # Upload state file as an artifact (optional, for debugging)
+      - name : Upload state
+        uses: actions/upload-artifact
+        with:
+          name: terraform-state
+          path: envs/dev/private-link-service/terraform.tfstate
 
   # 🔐 DESTROY (with approval)
   destroy:
@@ -95,6 +101,14 @@ jobs:
           tenant-id: ${{ secrets.ARM_TENANT_ID }}
           subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
 
+      - name: Download state
+        uses: actions/download-artifact@v4
+        with:
+          name: tfstate
+          path: envs/dev/private-link-service/terraform.tfstate
+
+      - name: Terraform Destroy
+        run: terraform destroy -auto-approve
       - name: Terraform Destroy
         working-directory: envs/dev/private-link-service
         run: |
