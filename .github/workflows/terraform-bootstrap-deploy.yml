@@ -37,7 +37,7 @@ jobs:
 
       - name: Terraform Init (bootstrap)
         working-directory: bootstrap
-        run: terraform init -backend=false -input=false
+        run: terraform init -backend=false -reconfigure -input=false
 
       - name: Terraform Apply (bootstrap)
         working-directory: bootstrap
