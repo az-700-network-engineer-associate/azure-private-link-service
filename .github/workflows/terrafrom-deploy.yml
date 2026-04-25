@@ -64,23 +64,12 @@
           working-directory: envs/dev/private-link-service
           run: terraform plan -out=tfplan
 
-        - name: Download state
-          uses: actions/download-artifact@v4
-          with:
-            name: terraform-state
-            path: envs/dev/private-link-service/terraform.tfstate
         # Terraform Apply
         - name: Terraform Apply
           if: github.ref == 'refs/heads/main'
           working-directory: envs/dev/private-link-service
           run: terraform apply -auto-approve tfplan
 
-        # Upload state file as an artifact (optional, for debugging)
-        - name : Upload state
-          uses: actions/upload-artifact@v4
-          with:
-            name: terraform-state
-            path: envs/dev/private-link-service/terraform.tfstate
 
     # 🔐 DESTROY (with approval)
     destroy:
@@ -106,16 +95,6 @@
             client-id: ${{ secrets.ARM_CLIENT_ID }}
             tenant-id: ${{ secrets.ARM_TENANT_ID }}
             subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-
-        - name: Download state
-          uses: actions/download-artifact@v4
-          with:
-            name: terraform-state
-            path: envs/dev/private-link-service/terraform.tfstate
-        - name: List Terraform Files
-          run: ls -la
-        - name: unzip state
-          run: unzip terraform-state.zip -d envs/dev/private-link-service
 
         - name: Terraform Destroy
           run: terraform destroy -auto-approve
