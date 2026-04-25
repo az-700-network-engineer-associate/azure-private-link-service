@@ -17,6 +17,7 @@
     ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
     ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
     ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+    ARM_USE_OIDC: true
 
   jobs:
     terraform-dev:
@@ -52,7 +53,6 @@
             -backend-config="storage_account_name="storageacttfstatedev" \
             -backend-config="container_name="tf-state-pls-dev" \
             -backend-config="key=dev/private-link-service/terraform.tfstate" \
-            -backend-config="access_key=${{ secrets.TF_BACKEND_ACCESS_KEY }}"
 
         # Terraform Validate
         - name: Terraform Validate
