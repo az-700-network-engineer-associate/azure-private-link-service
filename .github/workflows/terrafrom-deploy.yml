@@ -71,7 +71,7 @@ jobs:
 
       # Upload state file as an artifact (optional, for debugging)
       - name : Upload state
-        uses: actions/upload-artifact
+        uses: actions/upload-artifact@v4
         with:
           name: terraform-state
           path: envs/dev/private-link-service/terraform.tfstate
