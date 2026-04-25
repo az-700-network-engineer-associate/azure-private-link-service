@@ -42,6 +42,7 @@ jobs:
         working-directory: bootstrap
         run: terraform apply -auto-approve
 
+
       - name: Migrate state to backend
         working-directory: bootstrap
         run: |
