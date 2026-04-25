@@ -50,8 +50,8 @@
         - name: Terraform Init
           working-directory: envs/dev/private-link-service
           run: terraform init \
-            -backend-config="storage_account_name="storageacttfstatedev" \
-            -backend-config="container_name="tf-state-pls-dev" \
+            -backend-config="storage_account_name=storageacttfstatedev" \
+            -backend-config="container_name=tf-state-pls-dev" \
             -backend-config="key=dev/private-link-service/terraform.tfstate" \
 
         # Terraform Validate
