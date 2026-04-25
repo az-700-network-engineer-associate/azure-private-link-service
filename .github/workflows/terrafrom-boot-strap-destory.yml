@@ -14,7 +14,7 @@ env:
   ARM_USE_OIDC: true
 
 jobs:
-  destroy-backend:
+  destroy-bootstrap:
     runs-on: ubuntu-latest
 
     steps:

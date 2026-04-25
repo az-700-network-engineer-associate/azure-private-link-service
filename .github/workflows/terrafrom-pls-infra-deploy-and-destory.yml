@@ -8,7 +8,7 @@
           - main
         paths:
           - 'terraform/**'
-          - '.github/workflows/terrafrom-pls-infra-deploy.yml'
+          - '.github/workflows/terrafrom-pls-infra-deploy-and-destory.yml'
 
     permissions:
       id-token: write   # ✅ REQUIRED for Azure OIDC
