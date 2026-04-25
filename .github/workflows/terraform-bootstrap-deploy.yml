@@ -35,10 +35,6 @@ jobs:
           tenant-id: ${{ secrets.ARM_TENANT_ID }}
           subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
 
-      - name: Clean Terraform cache
-        working-directory: bootstrap
-        run: rm -rf .terraform .terraform.lock.hcl
-
       - name: Terraform Init (bootstrap)
         working-directory: bootstrap
         run: terraform init -backend=false -reconfigure -input=false
