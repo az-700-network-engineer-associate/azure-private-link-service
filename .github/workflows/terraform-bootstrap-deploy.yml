@@ -11,6 +11,7 @@ env:
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  ARM_USE_OIDC: true
 
 jobs:
   # 🧱 1) BOOTSTRAP (runs once or idempotent)
@@ -36,7 +37,7 @@ jobs:
 
       - name: Terraform Init (bootstrap)
         working-directory: bootstrap
-        run: terraform init -backend=false
+        run: terraform init -backend=false -input=false
 
       - name: Terraform Apply (bootstrap)
         working-directory: bootstrap
