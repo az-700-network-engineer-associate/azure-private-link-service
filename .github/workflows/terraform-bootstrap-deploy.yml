@@ -14,7 +14,7 @@ env:
 
 jobs:
   # 🧱 1) BOOTSTRAP (runs once or idempotent)
-  bootstrap-deploy:
+  deploy-bootstrap:
     runs-on: ubuntu-latest
 
     steps:
@@ -41,7 +41,7 @@ jobs:
       - name: Terraform Apply (bootstrap)
         working-directory: bootstrap
         run: terraform apply -auto-approve
-  deploy-terraform-infra:
+  deploy-pls-infra:
     needs: [bootstrap-deploy]
     uses: ./.github/workflows/terraform-pls-infra-deploy-and-destroy.yml
     secrets: inherit

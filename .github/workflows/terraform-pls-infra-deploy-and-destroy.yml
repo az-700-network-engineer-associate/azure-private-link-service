@@ -21,7 +21,7 @@
       ARM_USE_OIDC: true
 
     jobs:
-      terraform-dev:
+      deploy-pls-infra:
         runs-on: ubuntu-latest
 
         steps:
@@ -73,7 +73,7 @@
 
 
       # 🔐 DESTROY (with approval)
-      destroy-infra:
+      destroy-pls-infra:
         needs: terraform-dev
         runs-on: ubuntu-latest
 

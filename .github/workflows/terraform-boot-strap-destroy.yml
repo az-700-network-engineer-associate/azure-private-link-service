@@ -24,6 +24,7 @@ jobs:
           client-id: ${{ secrets.ARM_CLIENT_ID }}
           tenant-id: ${{ secrets.ARM_TENANT_ID }}
           subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+
       - name: Check bootstrap resource group exists
         id: check_rg
         run: |
@@ -31,6 +32,17 @@ jobs:
             echo "RG_EXISTS=true" >> $GITHUB_ENV
             az group show -n rg-pls-bootstrap-dev
             az group delete -n rg-pls-bootstrap-dev -y
+          else
+            echo "RG_EXISTS=false" >> $GITHUB_ENV
+          fi
+
+      - name: Check NetworkWatcherRG resource group exists
+        id: check_rg
+        run: |
+          if az group exists -n NetworkWatcherRG; then
+            echo "RG_EXISTS=true" >> $GITHUB_ENV
+            az group show -n NetworkWatcherRG
+            az group delete -n NetworkWatcherRG -y
           else
             echo "RG_EXISTS=false" >> $GITHUB_ENV
           fi
