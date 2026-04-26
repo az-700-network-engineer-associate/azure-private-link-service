@@ -74,7 +74,7 @@
 
       # 🔐 DESTROY (with approval)
       destroy-pls-infra:
-        needs: terraform-dev
+        needs: [deploy-pls-infra]
         runs-on: ubuntu-latest
 
         # 👇 THIS IS THE MAGIC
