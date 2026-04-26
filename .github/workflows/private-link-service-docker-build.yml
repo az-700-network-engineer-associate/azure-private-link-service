@@ -51,6 +51,6 @@ jobs:
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/azure-private-link-service:latest
   deploy-bootstrap:
-    needs: [build]
+    needs: [build-and-push-docker-image]
     uses: ./.github/workflows/terraform-bootstrap-deploy.yml
     secrets: inherit

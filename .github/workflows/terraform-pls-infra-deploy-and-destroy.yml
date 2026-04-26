@@ -106,7 +106,7 @@
               terraform destroy -auto-approve
 
       destroy-bootstrap:
-        needs: [destroy-infra]
+        needs: [destroy-pls-infra]
         uses: ./.github/workflows/terraform-boot-strap-destroy.yml
         secrets: inherit
 
