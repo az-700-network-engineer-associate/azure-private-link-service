@@ -10,6 +10,9 @@ on:
       - 'script/**'
       - 'Dockerfile'
       - '.github/workflows/private-link-service-docker-build.yml'
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   build:
@@ -50,3 +53,4 @@ jobs:
   deploy-bootstrap:
     needs: [build]
     uses: ./.github/workflows/terraform-bootstrap-deploy.yml
+    secrets: inherit
