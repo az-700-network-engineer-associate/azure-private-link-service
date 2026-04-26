@@ -108,4 +108,5 @@
       destroy-bootstrap:
         needs: [destroy-infra]
         uses: ./.github/workflows/terraform-boot-strap-destroy.yml
+        secrets: inherit
 

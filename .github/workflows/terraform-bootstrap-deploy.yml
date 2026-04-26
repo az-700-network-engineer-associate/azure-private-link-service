@@ -44,3 +44,4 @@ jobs:
   deploy-terraform-infra:
     needs: [bootstrap-deploy]
     uses: ./.github/workflows/terraform-pls-infra-deploy-and-destroy.yml
+    secrets: inherit
