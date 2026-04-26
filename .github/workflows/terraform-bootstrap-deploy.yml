@@ -34,6 +34,17 @@ jobs:
           tenant-id: ${{ secrets.ARM_TENANT_ID }}
           subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
 
+      - name: Remove bootstrap resource group if exists
+        id: check_rg_bootstrap
+        run: |
+          if az group exists -n rg-pls-bootstrap-dev; then
+            echo "RG_EXISTS=true" >> $GITHUB_ENV
+            az group show -n rg-pls-bootstrap-dev
+            az group delete -n rg-pls-bootstrap-dev -y
+          else
+            echo "RG_EXISTS=false" >> $GITHUB_ENV
+          fi 
+
       - name: Terraform Init (bootstrap)
         working-directory: bootstrap
         run: terraform init
