@@ -1,5 +1,5 @@
 
-    name: Terraform AZ-700 Private Link Service Deployment
+    name: Terraform Private Link Service Deployment
 
     on:
       workflow_dispatch:
@@ -8,7 +8,7 @@
           - main
         paths:
           - 'terraform/**'
-          - '.github/workflows/terrafrom-pls-infra-deploy-and-destory.yml'
+          - '.github/workflows/terraform-pls-infra-deploy-and-destroy.yml'
 
     permissions:
       id-token: write   # ✅ REQUIRED for Azure OIDC
@@ -73,7 +73,7 @@
 
 
       # 🔐 DESTROY (with approval)
-      destroy:
+      destroy-infra:
         needs: terraform-dev
         runs-on: ubuntu-latest
 
@@ -104,3 +104,9 @@
             run: |
               terraform init
               terraform destroy -auto-approve
+
+      destroy-bootstrap:
+        needs: destroy-infra
+        runs-on: ubuntu-latest
+        uses: ./.github/workflows/terraform-boot-strap-destroy.yml
+

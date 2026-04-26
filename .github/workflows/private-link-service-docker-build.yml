@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Build PLS and Push Docker Image
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
       - 'pom.xml'
       - 'script/**'
       - 'Dockerfile'
-      - '.github/workflows/app-docker-build.yml'
+      - '.github/workflows/private-link-service-docker-build.yml'
 
 jobs:
   build:
@@ -46,3 +46,7 @@ jobs:
       - name: Push Docker Image
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/azure-private-link-service:latest
+  deploy-bootstrap:
+    needs: build
+    runs-on: ubuntu-latest
+    uses: ./.github/workflows/terraform-bootstrap-deploy.yml
