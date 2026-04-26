@@ -1,8 +1,7 @@
 name: Terraform Bootstrap + Deploy
 
 on:
-  workflow_dispatch:
-
+  workflow_call:
 permissions:
   id-token: write
   contents: read
@@ -43,6 +42,5 @@ jobs:
         working-directory: bootstrap
         run: terraform apply -auto-approve
   deploy-terraform-infra:
-    needs: bootstrap-deploy
-    runs-on: ubuntu-latest
+    needs: [bootstrap-deploy]
     uses: ./.github/workflows/terraform-pls-infra-deploy-and-destroy.yml

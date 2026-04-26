@@ -2,7 +2,7 @@
     name: Terraform Private Link Service Deployment
 
     on:
-      workflow_dispatch:
+      workflow_call:
       push:
         branches:
           - main
@@ -106,7 +106,6 @@
               terraform destroy -auto-approve
 
       destroy-bootstrap:
-        needs: destroy-infra
-        runs-on: ubuntu-latest
+        needs: [destroy-infra]
         uses: ./.github/workflows/terraform-boot-strap-destroy.yml
 
